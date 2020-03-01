@@ -1,0 +1,14 @@
+@import '../mixins/import-font';
+
+@include import-font('roboto', 'Roboto', 'BlackItalic', 900, italic);
+@include import-font('roboto', 'Roboto', 'Black', 900, normal);
+@include import-font('roboto', 'Roboto', 'BoldItalic', 700, italic);
+@include import-font('roboto', 'Roboto', 'Bold', 700, normal);
+@include import-font('roboto', 'Roboto', 'LightItalic', 300, italic);
+@include import-font('roboto', 'Roboto', 'Light', 300, normal);
+@include import-font('roboto', 'Roboto', 'MediumItalic', 500, italic);
+@include import-font('roboto', 'Roboto', 'Medium', 500, normal);
+@include import-font('roboto', 'Roboto', 'RegularItalic', 400, italic);
+@include import-font('roboto', 'Roboto', 'Regular', 400, normal);
+@include import-font('roboto', 'Roboto', 'ThinItalic', 100, italic);
+@include import-font('roboto', 'Roboto', 'Thin', 100, normal);
