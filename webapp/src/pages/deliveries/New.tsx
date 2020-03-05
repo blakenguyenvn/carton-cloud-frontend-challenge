@@ -24,7 +24,7 @@ export default class NewDeliveryPage extends React.Component<{}, NewDeliveryPage
           <h1 className={DeliveryStyle.pageTitle}>
             {this.state.title}
           </h1>
-          <DeliveryForm currentDelivery={null}/>
+          <DeliveryForm deliveryId={null}/>
         </Container>
       </React.Fragment>
     );

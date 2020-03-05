@@ -36,11 +36,13 @@ export default class DeliveryService {
 
     // Update delivery
     async updateDelivery({ id, payload }: any) {
+      const { date, name, driver_id } = payload;
+
       const response = await fetch(`${API_SERVER}${this.path}?id=${id}`,
         {
           method: 'PUT',
           headers: HEADERS,
-          body: payload
+          body: JSON.stringify({ date, name, driver_id })
         }
       );
 

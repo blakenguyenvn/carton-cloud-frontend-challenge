@@ -1,7 +1,7 @@
 import 'date-fns';
 import * as React from 'react';
 import DateFnsUtils from '@date-io/date-fns';
-import { Link } from 'react-router-dom';
+import { Link, Router, Redirect } from 'react-router-dom';
 import moment from 'moment';
 import {
   Button,
@@ -20,23 +20,28 @@ import {
   KeyboardTimePicker,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
+import { DELIVERY_CONFIGS } from '@/config/delivery';
 import DeliveryService from '@/services/DeliveryService';
 import DriverService from '@/services/DriverService';
 import * as SpacingStyle from '@/assets/styles/base/spacing.scss';
 import * as DeliveryStyle from '@/assets/styles/components/Delivery.scss';
 
 interface DeliveryFormState {
+  mode: string,
+  deliveryId: string,
   date: string,
   name: string,
   driver: string,
   driverOptions: any,
   errors: any,
-  alert: any
+  alert: any,
+  config: any,
+  redirect: boolean
 };
 
 interface DeliveryFormProps {
-  currentDelivery: any
-}
+  deliveryId: string,
+};
 
 const DeliveryConnector = new DeliveryService();
 const DriverConnector = new DriverService();
@@ -46,8 +51,11 @@ const dateNow = moment().utc().format(momentFormat);
 export class DeliveryForm extends React.Component<DeliveryFormProps, DeliveryFormState> {
   constructor(props: any) {
     super(props);
+    const mode = props.deliveryId ? 'update' : 'create';
 
     this.state = {
+      mode,
+      deliveryId: props.deliveryId,
       date: dateNow,
       name: '',
       driver: '',
@@ -61,12 +69,18 @@ export class DeliveryForm extends React.Component<DeliveryFormProps, DeliveryFor
         message: '',
         show: false,
         type: 'success'
-      }
+      },
+      config: DELIVERY_CONFIGS[mode],
+      redirect: false
     };
   }
 
   // Hook: component mounted
   componentDidMount() {
+    if (this.state.deliveryId) {
+      this.getDelivery(this.state.deliveryId);
+    }
+
     this.getDrivers();
   }
 
@@ -83,6 +97,17 @@ export class DeliveryForm extends React.Component<DeliveryFormProps, DeliveryFor
       name: '',
       driver: ''
     });
+  }
+
+  // Handle redirect to home page
+  goToHome() {
+    setTimeout(() => {
+      this.setState({
+        ...this.state,
+        redirect: true
+      });
+    }, 1000);
+
   }
 
   // Handle show/hide alert
@@ -105,6 +130,20 @@ export class DeliveryForm extends React.Component<DeliveryFormProps, DeliveryFor
     }, 8000);
   }
 
+  // Get Delivery detail
+  async getDelivery(id: any) {
+    const { date, name, driver_id } = await DeliveryConnector.getDelivery({ id });
+
+    if (date && name && driver_id) {
+      this.setState({
+        ...this.state,
+        date,
+        name,
+        driver: driver_id
+      });
+    }
+  }
+
   // Get list drivers
   async getDrivers() {
     const drivers = await DriverConnector.getDrivers();
@@ -115,8 +154,8 @@ export class DeliveryForm extends React.Component<DeliveryFormProps, DeliveryFor
     });
   }
 
-  // Get list deliveries
-  async addDelivery() {
+  // CREATE: New Delivery
+  async createDelivery() {
     await this.validateDeliveryForm();
     const { validDate, validName, validDriver } = this.state.errors;
 
@@ -127,13 +166,52 @@ export class DeliveryForm extends React.Component<DeliveryFormProps, DeliveryFor
       const { errors } = await DeliveryConnector.newDelivery(payload);
 
       if (errors) {
-        this.showAlert({ type: 'error', message: 'Delivery creating failed, please check your data and try again!' });
+        this.showAlert({ type: 'error', message: this.state.config.errorMessage });
         return;
       }
 
-      this.showAlert({ type: 'success', message: 'Delivery created successfully!' });
+      this.showAlert({ type: 'success', message: this.state.config.successMessage });
       this.resetForm();
     }
+  }
+
+  // UPDATE: Delivery
+  async updateDelivery() {
+    await this.validateDeliveryForm();
+    const { validDate, validName, validDriver } = this.state.errors;
+
+    // Check valid data and submit new delivery
+    if (!validDate && !validName && !validDriver) {
+      const { date, name, driver } = this.state;
+      const payload = { date, name, driver_id: driver };
+      const { errors } = await DeliveryConnector.updateDelivery({
+        id: this.state.deliveryId,
+        payload
+      });
+
+      if (errors) {
+        this.showAlert({ type: 'error', message: this.state.config.errorMessage });
+        return;
+      }
+
+      await this.showAlert({ type: 'success', message: this.state.config.successMessage });
+    }
+  }
+
+  // DELETE: Delivery
+  async deleteDelivery() {
+    const { errors } = await DeliveryConnector.deleteDelivery({
+      id: this.state.deliveryId
+    });
+
+    if (errors) {
+      this.showAlert({ type: 'error', message: this.state.config.deleteError });
+      return;
+    }
+
+    this.showAlert({ type: 'success', message: this.state.config.deleteSuccess });
+    this.resetForm();
+    this.goToHome();
   }
 
   // Handle date change
@@ -180,6 +258,10 @@ export class DeliveryForm extends React.Component<DeliveryFormProps, DeliveryFor
   }
 
   render() {
+    if (this.state.redirect === true) {
+      return <Redirect to='/' />
+    }
+
     return(
       <React.Fragment>
         {this.state.alert.show ? (
@@ -243,11 +325,23 @@ export class DeliveryForm extends React.Component<DeliveryFormProps, DeliveryFor
             )}
           </FormControl>
         </FormGroup>
-        <FormGroup row>
-          <FormControl>
-            <Button variant="contained" color="primary" onClick={this.addDelivery.bind(this)}>Create Delivery</Button>
-          </FormControl>
-        </FormGroup>
+
+        {this.state.config.isUpdate ? (
+          <FormGroup row>
+            <Button variant="contained" color="primary" onClick={this.updateDelivery.bind(this)}>
+              {this.state.config.submitButton}
+            </Button>
+            <Button variant="contained" color="secondary" className={SpacingStyle.mgLeft_10} onClick={this.deleteDelivery.bind(this)}>
+              {this.state.config.deleteButton}
+            </Button>
+          </FormGroup>
+        ) : (
+          <FormGroup row>
+            <Button variant="contained" color="primary" onClick={this.createDelivery.bind(this)}>
+              {this.state.config.submitButton}
+            </Button>
+          </FormGroup>
+        )}
       </React.Fragment>
     );
   };
