@@ -96,7 +96,7 @@ export class DeliveriesTable extends React.Component<{}, DeliveriesTableState> {
                   <TableCell>{this.state.drivers[this.state.data[id].driver_id].name }</TableCell>
                   <TableCell>
                     <Link key={id}
-                      to={`/deliveries/${id}`}>
+                      to={`/deliveries/edit/${id}`}>
                       <Button variant="contained" color="primary">
                         Edit
                       </Button>

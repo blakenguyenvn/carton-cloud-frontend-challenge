@@ -22,12 +22,12 @@ export default class DeliveryService {
     };
 
     // Create new delivery
-    async newDelivery({ payload }: any) {
+    async newDelivery({ date, name, driver_id }: any) {
       const response = await fetch(`${API_SERVER}${this.path}`,
         {
           method: 'POST',
           headers: HEADERS,
-          body: payload
+          body: JSON.stringify({ date, name, driver_id })
         }
       );
 

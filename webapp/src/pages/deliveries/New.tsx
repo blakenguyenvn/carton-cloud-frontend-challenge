@@ -1,6 +1,8 @@
 import * as React from 'react';
 import Container from '@material-ui/core/Container';
 import { Header } from '@/components/Header';
+import { DeliveryForm } from '@/components/deliveries/DeliveryForm';
+import * as DeliveryStyle from '@/assets/styles/components/Delivery.scss';
 
 interface NewDeliveryPageState {
   title: string,
@@ -19,7 +21,10 @@ export default class NewDeliveryPage extends React.Component<{}, NewDeliveryPage
       <React.Fragment>
         <Header />
         <Container maxWidth="lg">
-          {this.state.title}
+          <h1 className={DeliveryStyle.pageTitle}>
+            {this.state.title}
+          </h1>
+          <DeliveryForm currentDelivery={null}/>
         </Container>
       </React.Fragment>
     );

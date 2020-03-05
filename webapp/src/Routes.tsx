@@ -21,7 +21,7 @@ const Routes = () => (
     />
     <Route
       exact
-      path="/deliveries/:id"
+      path="/deliveries/edit/:id"
       component={EditDeliveryPage}
     />
     <Route
