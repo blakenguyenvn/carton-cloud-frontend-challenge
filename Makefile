@@ -4,5 +4,5 @@ server:
 frontend:
 	cd webapp && make all
 
-start_frontend:
+start:
 	cd webapp && make start

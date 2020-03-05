@@ -1,5 +1,4 @@
 <?php
-
 $drivers = json_decode(file_get_contents('data/drivers.json'));
 $deliveries = json_decode(file_get_contents('data/deliveries.json'));
 

@@ -1,11 +1,10 @@
 import React from 'react';
-import AppBar from '@material-ui/core/AppBar';
 import Typography from '@material-ui/core/Typography';
 import { Link } from 'react-router-dom';
 
 interface HeaderState {
-   branchName: string,
-   menu: any
+  branchName: string,
+  menu: any
 };
 
 export class Header extends React.Component<{}, HeaderState> {
@@ -13,7 +12,7 @@ export class Header extends React.Component<{}, HeaderState> {
 		super(props);
 
     this.state = {
-      branchName: 'CartonCloud',
+      branchName: 'Carton Cloud',
       menu: [
         { title: 'Deliveries', path: '/' },
         { title: 'New Delivery', path: '/deliveries/new' },
@@ -23,8 +22,8 @@ export class Header extends React.Component<{}, HeaderState> {
 
   render() {
     return (
-      <AppBar position="static">
-        <Typography variant="h1" noWrap>
+      <header className="header">
+        <Typography className="page-title" variant="h6" noWrap>
             {this.state.branchName}
         </Typography>
         <ul>
@@ -34,7 +33,7 @@ export class Header extends React.Component<{}, HeaderState> {
             </li>
           ))}
         </ul>
-      </AppBar>
+      </header>
     );
   }
 };

@@ -1,26 +1,74 @@
 import * as React from 'react';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import { Link } from 'react-router-dom';
+import DeliveryService from '@/services/DeliveryService';
+import DriverService from '@/services/DriverService';
+import {
+  Button,
+  Paper,
+  TableContainer,
+  Table,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell
+} from '@material-ui/core';
+import * as SpacingStyle from '@/assets/styles/base/spacing.scss';
 
 interface DeliveriesTableState {
   title: string,
-  data: any,
+  data:  any,
+  drivers: any
 };
+
+const DeliveryConnector = new DeliveryService();
+const DriverConnector = new DriverService();
 
 export class DeliveriesTable extends React.Component<{}, DeliveriesTableState> {
   constructor(props: any) {
     super(props);
     this.state = {
       title: 'Deliveries',
-      data: [
-        { date: '2018-01-01', name: 'Jimmy Jonse', driver: 'Johnny' },
-      ],
+      data: [],
+      drivers: []
     };
+  }
+
+  componentDidMount() {
+    this.getDrivers();
+    this.getDeliveries();
+  }
+
+  shouldComponentUpdate(nextProps: any, nextState: any) {
+    return this.state.data !== nextState.data ||
+      this.state.drivers !== nextState.drivers;
+  }
+
+  // Get list drivers
+  async getDrivers() {
+    const drivers = await DriverConnector.getDrivers();
+
+    this.setState({
+      ...this.state,
+      drivers,
+    });
+  }
+
+  // Get list deliveries
+  async getDeliveries() {
+    const deliveries = await DeliveryConnector.getDeliveries();
+
+    this.setState({
+      ...this.state,
+      data: deliveries,
+    });
+  }
+
+  // Delete delivery
+  async deleteDelivery(id: any) {
+    const deleteResponse = await DeliveryConnector.deleteDelivery({ id });
+
+    // Update new list
+    this.getDeliveries();
   }
 
   render() {
@@ -38,15 +86,29 @@ export class DeliveriesTable extends React.Component<{}, DeliveriesTableState> {
               </TableRow>
             </TableHead>
             <TableBody>
-              {this.state.data.map((row: any, index: number) => (
-                <TableRow key={row.name}>
+              {Object.keys(this.state.data).map((id: any, index: any) => (
+                <TableRow key={id}>
                   <TableCell component="th" scope="row">
-                    1
+                    {index + 1}
                   </TableCell>
-                  <TableCell>{row.date}</TableCell>
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.driver}</TableCell>
-                  <TableCell></TableCell>
+                  <TableCell>{this.state.data[id].date}</TableCell>
+                  <TableCell>{this.state.data[id].name}</TableCell>
+                  <TableCell>{this.state.drivers[this.state.data[id].driver_id].name }</TableCell>
+                  <TableCell>
+                    <Link key={id}
+                      to={`/deliveries/${id}`}>
+                      <Button variant="contained" color="primary">
+                        Edit
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      className={SpacingStyle.mgLeft_10}
+                      onClick={() => this.deleteDelivery(id)}>
+                      Delete
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
