@@ -23,9 +23,11 @@ export class Header extends React.Component<{}, HeaderState> {
   render() {
     return (
       <header className="header">
-        <Typography className="page-title" variant="h6" noWrap>
-            {this.state.branchName}
-        </Typography>
+        <Link to={'/'}>
+          <Typography className="page-title" variant="h6" noWrap>
+              {this.state.branchName}
+          </Typography>
+        </Link>
         <ul>
           {this.state.menu.map((item: any, index: number) => (
             <li key={item.path}>

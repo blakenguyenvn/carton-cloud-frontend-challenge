@@ -277,6 +277,7 @@ export class DeliveryForm extends React.Component<DeliveryFormProps, DeliveryFor
               <KeyboardDatePicker
                 format="yyyy-MM-dd"
                 value={this.state.date}
+                disabled={this.state.config.isUpdate}
                 error={this.state.errors.validDate}
                 onChange={this.handleDateChange.bind(this)}
                 KeyboardButtonProps={{
@@ -296,6 +297,7 @@ export class DeliveryForm extends React.Component<DeliveryFormProps, DeliveryFor
             <TextField
               id="delivery_name"
               error={this.state.errors.validName}
+              disabled={this.state.config.isUpdate}
               value={this.state.name}
               onChange={this.handleNameChange.bind(this)}
             />
